@@ -1,5 +1,5 @@
 name: build
-on: [push, pull_request]
+于: [push， pull_request]
 jobs:
   build:
     runs-on: ${{ matrix.os }}
@@ -8,11 +8,11 @@ jobs:
       matrix:
         os: [windows-latest]
         build_type: [Release]
-        enable_ui: [on]
+        enable_ui: [于]
         include:
           - os: windows-latest
             build_type: Release
-            enable_ui: on
+            enable_ui: 于
     steps:
     - uses: actions/checkout@v3
       with:
@@ -25,32 +25,36 @@ jobs:
     - uses: seanmiddleditch/gha-setup-ninja@master
     - uses: ilammy/msvc-dev-cmd@v1
       if: runner.os == 'Windows'
-    - name: Generating Makefiles
-      shell: bash
-      run: |
-        export enable_ccache=off
-        choco install wget -y --no-progress
-        wget https://github.com/aseprite/skia/releases/download/m102-861e4743af/Skia-Windows-Release-x64.zip
-        unzip Skia-Windows-Release-x64.zip -d skia
-        
-        curl -L https://github.com/blueloveTH/aseprite/releases/download/v0.01/libcrypto-1_1-x64.dll --output libcrypto-1_1-x64.dll
+      - name: Generating Makefiles
+        shell: bash
+        run: |
+          # 下载依赖
+          export enable_ccache=off
+          choco install wget -y --no-progress
+          wget https://github.com/aseprite/skia/releases/download/m102-861e4743af/Skia-Windows-Release-x64.zip
+          unzip Skia-Windows-Release-x64.zip -d skia
+          curl -L https://github.com/blueloveTH/aseprite/releases/download/v0.01/libcrypto-1_1-x64.dll --output libcrypto-1_1-x64.dll
 
-        cmake -S . -B build -G Ninja \
-          -DCMAKE_BUILD_TYPE=${{ matrix.build_type }} \
-          -DENABLE_UI=${{ matrix.enable_ui }} \
-          -DENABLE_CCACHE=$enable_ccache \
-          -DLAF_BACKEND=skia \
-          -DSKIA_DIR=./skia \
-          -DSKIA_LIBRARY_DIR=./skia/out/Release-x64 \
-          -DSKIA_LIBRARY=./skia/out/Release-x64/skia.lib
-    - name: Compiling
-      shell: bash
-      run: |
-        cd build && ninja
-    - uses: actions/upload-artifact@v3
-      with:
-        name: aseprite
-        path: |
-          libcrypto-1_1-x64.dll
-          D:/a/aseprite/aseprite/build/bin/data
-          D:/a/aseprite/aseprite/build/bin/aseprite.exe
+          # CMake配置（新增输出目录）
+          cmake -S . -B build -G Ninja \
+            -DCMAKE_BUILD_TYPE=${{ matrix.build_type }} \
+            -DENABLE_UI=${{ matrix.enable_ui }} \
+            -DLAF_BACKEND=skia \
+            -DSKIA_DIR=./skia \
+            -DSKIA_LIBRARY_DIR=./skia/out/Release-x64 \
+            -DSKIA_LIBRARY=./skia/out/Release-x64/skia.lib \
+            -DCMAKE_RUNTIME_OUTPUT_DIRECTORY=bin
+
+      - name: Compiling
+        shell: bash
+        run: |
+          cd build && ninja
+
+      - name: Upload Artifact
+        uses: actions/upload-artifact@v3
+        with:
+          name: aseprite
+          path: |
+            ${{ github.workspace }}/libcrypto-1_1-x64.dll
+            ${{ github.workspace }}/aseprite/build/bin/data
+            ${{ github.workspace }}/aseprite/build/bin/aseprite.exe
