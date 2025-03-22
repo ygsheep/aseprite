@@ -25,9 +25,9 @@ jobs:
     - uses: seanmiddleditch/gha-setup-ninja@master
     - uses: ilammy/msvc-dev-cmd@v1
       if: runner.os == 'Windows'
-      - name: Generating Makefiles
-        shell: bash
-        run: |
+    - name: Generating Makefiles
+      shell: bash
+      run: |
           # 下载依赖
           export enable_ccache=off
           choco install wget -y --no-progress
@@ -45,16 +45,15 @@ jobs:
             -DSKIA_LIBRARY=./skia/out/Release-x64/skia.lib \
             -DCMAKE_RUNTIME_OUTPUT_DIRECTORY=bin
 
-      - name: Compiling
-        shell: bash
-        run: |
+    - name: Compiling
+      shell: bash
+      run: |
           cd build && ninja
 
-      - name: Upload Artifact
-        uses: actions/upload-artifact@v3
-        with:
-          name: aseprite
-          path: |
-            ${{ github.workspace }}/libcrypto-1_1-x64.dll
-            ${{ github.workspace }}/aseprite/build/bin/data
-            ${{ github.workspace }}/aseprite/build/bin/aseprite.exe
+    - uses: actions/upload-artifact@v3
+      with:
+        name: aseprite
+        path: |    
+          ${{ github.workspace }}/libcrypto-1_1-x64.dll
+          ${{ github.workspace }}/aseprite/build/bin/data
+          ${{ github.workspace }}/aseprite/build/bin/aseprite.exe
