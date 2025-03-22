@@ -1,15 +1,15 @@
 name: build
-on: [push, pull_request]
+于: [push， pull_request]
 jobs:
   build:
     runs-on: ${{ matrix.os }}
     strategy:
       fail-fast: false
       matrix:
-        os: [windows-latest, macos-latest, ubuntu-latest]
-        build_type: [RelWithDebInfo, Debug]
-        ui: [gui, cli]
-        scripting: [lua, noscripts]
+        os: [windows-latest， macos-latest， ubuntu-latest]
+        build_type: [Release]
+        ui: [gui， cli]
+        scripting: [lua， noscripts]
         exclude:
           - build_type: Debug
             ui: gui
